@@ -1,0 +1,29 @@
+
+\	java:S112²"FDefine and throw a dedicated exception instead of using a generic one.(‡Êà–
+\	java:S112Ã"FDefine and throw a dedicated exception instead of using a generic one.(‡Êà–
+\	java:S112ç"FDefine and throw a dedicated exception instead of using a generic one.(‡Êà–
+\	java:S112ı"FDefine and throw a dedicated exception instead of using a generic one.(‡Êà–
+\	java:S112Æ"FDefine and throw a dedicated exception instead of using a generic one.(Âğğ
+B
+java:S1948ì"&Make "sync" transient or serializable.(Å“™İûÿÿÿÿ
+Q
+java:S1161·":Add the "@Override" annotation above this method signature(š´™ù
+i
+java:S3776¾"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(Ÿ‘ê»
+R	java:S125Â"<This block of commented-out lines of code should be removed.(æ´®´
+W	java:S125ø"<This block of commented-out lines of code should be removed.(·§é»ıÿÿÿÿ
+i
+java:S3776"RRefactor this method to reduce its Cognitive Complexity from 50 to the 15 allowed.(Èßù¯
+R	java:S125³"<This block of commented-out lines of code should be removed.(æ´®´
+i
+java:S3776ô"RRefactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed.(«¿¿ø
+B
+java:S1948ù"&Make "sync" transient or serializable.(ËÉ‰Îşÿÿÿÿ
+B
+java:S1948Ş"&Make "sync" transient or serializable.(ËÉ‰Îşÿÿÿÿ
+f
+java:S1192í"JDefine a constant instead of duplicating this literal "not owner" 3 times.(¶¼‰õûÿÿÿÿ
+s
+java:S1192²"\Define a constant instead of duplicating this literal "Maximum lock count exceeded" 4 times.(‡Êà–
+L
+java:S1191¾"5Use classes from the Java API instead of Sun classes.(¾¯Œ÷

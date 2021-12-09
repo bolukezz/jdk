@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="EclipseCodeFormatterProjectSettings">
+    <option name="selectedGlobalProfile">
+      <Settings>
+        <option name="formatter" value="ECLIPSE" />
+        <option name="id" value="1621234127259" />
+        <option name="importOrderConfigFilePath" value="$PROJECT_DIR$/../../javaTools/style_guide/java/import_order.importorder" />
+        <option name="importOrderFromFile" value="true" />
+        <option name="name" value="keep" />
+        <option name="pathToConfigFileJava" value="$PROJECT_DIR$/../../javaTools/style_guide/java/keep_java_style.xml" />
+        <option name="selectedJavaProfile" value="KeepJavaStyle" />
+      </Settings>
+    </option>
+  </component>
+</project>

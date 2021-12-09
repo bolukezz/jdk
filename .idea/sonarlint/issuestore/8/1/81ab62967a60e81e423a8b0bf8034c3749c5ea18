@@ -1,0 +1,174 @@
+
+A
+java:S2160k"+Override the "equals" method in this class.(†é’
+r
+java:S1845¥"[Rename method "elementData" to prevent any misunderstanding/clash with field "elementData".(Õê¡
+Q
+java:S1161¢":Add the "@Override" annotation above this method signature(ûÄ•
+V
+java:S1161¯":Add the "@Override" annotation above this method signature(­­¬Îùÿÿÿÿ
+V
+java:S1161º":Add the "@Override" annotation above this method signature(«ÚÖİüÿÿÿÿ
+V
+java:S1161Î":Add the "@Override" annotation above this method signature(ì¦Æıûÿÿÿÿ
+j
+java:S2975á"SRemove this "clone" implementation; use a copy constructor or copy factory instead.(²ÈŞ
+V
+java:S1161û":Add the "@Override" annotation above this method signature(•ù•ãşÿÿÿÿ
+V
+java:S1161˜":Add the "@Override" annotation above this method signature(©Ûø¿ûÿÿÿÿ
+V
+java:S1161¿":Add the "@Override" annotation above this method signature(İìÆíøÿÿÿÿ
+P
+java:S1161Í":Add the "@Override" annotation above this method signature(å{
+V
+java:S1161Ü":Add the "@Override" annotation above this method signature(İÏç´øÿÿÿÿ
+Q
+java:S1161ï":Add the "@Override" annotation above this method signature(‡ğÎ
+V
+java:S1161‹":Add the "@Override" annotation above this method signature(İî‹âùÿÿÿÿ
+V
+java:S1161­":Add the "@Override" annotation above this method signature(Ş‚ÄÔıÿÿÿÿ
+Q
+java:S1161Ä":Add the "@Override" annotation above this method signature(˜Íşô
+P
+java:S1161Ü":Add the "@Override" annotation above this method signature(µ´ˆ2
+Q
+java:S1161û":Add the "@Override" annotation above this method signature(œ÷¾ÿ
+n
+java:S2177—"WRename this method; there is a "private" method in the parent class with the same name.(šÈ¢­
+n
+java:S2177¡"WRename this method; there is a "private" method in the parent class with the same name.(ÿ§Ú¶
+V
+java:S1161´":Add the "@Override" annotation above this method signature(‚Õ°ªÿÿÿÿÿ
+Q
+java:S1161É":Add the "@Override" annotation above this method signature(Ö÷•Â
+5
+java:S1659Ğ"Declare "w" on a separate line.(òªüJ
+\
+java:S1117Ï"@Rename "elementData" which hides the field declared at line 135.(©¬æÑşÿÿÿÿ
+V
+java:S1161®":Add the "@Override" annotation above this method signature(Î‹Ê÷ıÿÿÿÿ
+Q
+java:S1161¼":Add the "@Override" annotation above this method signature(¥÷Ğ¥
+P
+java:S1161Ç":Add the "@Override" annotation above this method signature(¹æá5
+W
+java:S1117ß"@Rename "elementData" which hides the field declared at line 135.(–§Û
+V
+java:S1161æ":Add the "@Override" annotation above this method signature(¦³üëûÿÿÿÿ
+P
+java:S1117ù"9Rename "size" which hides the field declared at line 142.(¬ªº´
+W
+java:S1117ş"@Rename "elementData" which hides the field declared at line 135.(¿Ó­ 
+W
+java:S1117¬"@Rename "elementData" which hides the field declared at line 135.(–§Û
+Q
+java:S1161ë":Add the "@Override" annotation above this method signature(¾ 
+M
+java:S2388Ç"1Prefix this call to "listIterator" with "super.".(ÆÊˆûÿÿÿÿ
+G
+java:S2160ú"+Override the "equals" method in this class.(ÅŞŒªúÿÿÿÿ
+V
+java:S1161‰":Add the "@Override" annotation above this method signature(Àš¨„ûÿÿÿÿ
+P
+java:S1161œ":Add the "@Override" annotation above this method signature(‡£
+Q
+java:S1161¤":Add the "@Override" annotation above this method signature(‡ğÎ
+Q
+java:S1161­":Add the "@Override" annotation above this method signature(œ÷¾ÿ
+Q
+java:S1161µ":Add the "@Override" annotation above this method signature(˜Íşô
+P
+java:S1161¹":Add the "@Override" annotation above this method signature(µ´ˆ2
+P
+java:S1161Æ":Add the "@Override" annotation above this method signature(¹æá5
+n
+java:S3776Ê"RRefactor this method to reduce its Cognitive Complexity from 27 to the 15 allowed.(ı½øÿÿÿÿ
+V
+java:S1161Ê":Add the "@Override" annotation above this method signature(ı½øÿÿÿÿ
+X
+java:S1117Í"<Rename "offset" which hides the field declared at line 1021.(‘¸À™øÿÿÿÿ
+W
+java:S1117Ş"@Rename "elementData" which hides the field declared at line 135.(–§Û
+W
+java:S1117ï"@Rename "elementData" which hides the field declared at line 135.(–§Û
+Q
+java:S1161÷":Add the "@Override" annotation above this method signature(¶­û‚
+V
+java:S1117ù":Rename "size" which hides the field declared at line 1022.(î”Ÿşÿÿÿÿ
+W
+java:S1117ş"@Rename "elementData" which hides the field declared at line 135.(¿Ó­ 
+Q
+java:S1161Â	":Add the "@Override" annotation above this method signature(¾ 
+n
+java:S2177Ì	"WRename this method; there is a "private" method in the parent class with the same name.(šÈ¢­
+n
+java:S2177Ñ	"WRename this method; there is a "private" method in the parent class with the same name.(ÿ§Ú¶
+V
+java:S1161Ú	":Add the "@Override" annotation above this method signature(ª÷‚µøÿÿÿÿ
+\
+java:S1117æ	"@Rename "elementData" which hides the field declared at line 135.(Şç·…øÿÿÿÿ
+U
+java:S1117ç	"9Rename "size" which hides the field declared at line 142.(°¦¿‹ùÿÿÿÿ
+[
+java:S1659Â
+"?Declare "lo" and all following declarations on a separate line.(Ö£¶ìÿÿÿÿÿ
+6
+java:S1659Ë
+"Declare "i" on a separate line.(À‹×Á
+P
+java:S1161×
+":Add the "@Override" annotation above this method signature(ºˆ¡
+[
+java:S1659Ø
+"?Declare "hi" and all following declarations on a separate line.(€åä°ıÿÿÿÿ
+;
+java:S1659Ù
+"Declare "a" on a separate line.(‡Ñóìøÿÿÿÿ
+>
+java:S1905ğ
+"'Remove this unnecessary cast to "long".(ó§ùú
+U
+java:S1117"9Rename "size" which hides the field declared at line 142.(°¦¿‹ùÿÿÿÿ
+U
+java:S1117¨"9Rename "size" which hides the field declared at line 142.(°¦¿‹ùÿÿÿÿ
+u
+java:S2293Ü	"YReplace the type specification in this constructor call with the diamond operator ("<>").(ĞÛã¹ùÿÿÿÿ
+o
+java:S2293Ä
+"YReplace the type specification in this constructor call with the diamond operator ("<>").(˜ç¨+
+d
+java:S1192¢"HDefine a constant instead of duplicating this literal "Index: " 3 times.(úÙĞ ûÿÿÿÿ
+J
+java:S1121ã".Extract the assignment out of this expression.(ùÊ¦øÿÿÿÿ
+J
+java:S1121°".Extract the assignment out of this expression.(ùÊ¦øÿÿÿÿ
+J
+java:S1121â".Extract the assignment out of this expression.(½áöóüÿÿÿÿ
+J
+java:S1121ó".Extract the assignment out of this expression.(½áöóüÿÿÿÿ
+D
+java:S1121Ä
+".Extract the assignment out of this expression.(˜ç¨+
+s	java:S127“"XRefactor the code in order to not assign to this loop counter from within the loop body.(ÓÕ®•ıÿÿÿÿ
+K
+java:S1191"5Use classes from the Java API instead of Sun classes.(Àãé
+S
+java:S2589©"7Remove this expression which always evaluates to "true"(÷ª»îúÿÿÿÿ
+S
+java:S2589è	"7Remove this expression which always evaluates to "true"(÷ª»îúÿÿÿÿ
+S
+java:S2589‚"7Remove this expression which always evaluates to "true"(÷ª»îúÿÿÿÿ
+`
+java:S2583š"DChange this condition so that it does not always evaluate to "false"(Ó¯ß½úÿÿÿÿ
+`
+java:S2583¬"DChange this condition so that it does not always evaluate to "false"(Ó¯ß½úÿÿÿÿ
+`
+java:S2583ë	"DChange this condition so that it does not always evaluate to "false"(Ó¯ß½úÿÿÿÿ
+`
+java:S2583"DChange this condition so that it does not always evaluate to "false"(Ó¯ß½úÿÿÿÿ
+`
+java:S2583Š"DChange this condition so that it does not always evaluate to "false"(Ó¯ß½úÿÿÿÿ
+`
+java:S2583·"DChange this condition so that it does not always evaluate to "false"(Ó¯ß½úÿÿÿÿ

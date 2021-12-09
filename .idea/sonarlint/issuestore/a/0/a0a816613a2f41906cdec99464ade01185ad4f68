@@ -1,0 +1,86 @@
+
+c	java:S112“"FDefine and throw a dedicated exception instead of using a generic one.(Âğğ8„ú ½À/
+|	java:S115‹"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(Úš›Ğıÿÿÿÿ8ˆú ½À/
+p
+java:S3776¡"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(—§¼¿8¯ú ½À/
+W
+java:S1161Ï":Add the "@Override" annotation above this method signature(å{8Ùú ½À/
+D
+java:S1659ã"!Declare "cap" on a separate line.(µäûµÿÿÿÿÿ8Üú ½À/
+W
+java:S1117á"9Rename "lock" which hides the field declared at line 167.(º·úã8İú ½À/
+V	java:S899€":Do something with the "boolean" value returned by "offer".(ÕÅ8âú ½À/
+W
+java:S1117—"9Rename "lock" which hides the field declared at line 167.(º·úã8åú ½À/
+W
+java:S1117¡"9Rename "lock" which hides the field declared at line 167.(º·úã8èú ½À/
+W
+java:S1117¯"9Rename "lock" which hides the field declared at line 167.(º·úã8ìú ½À/
+W
+java:S1117¼"9Rename "lock" which hides the field declared at line 167.(º·úã8ïú ½À/
+I
+java:S1452Î"&Remove usage of generic wildcard type.(âäıÿÿÿÿ8ñú ½À/
+W
+java:S1117Ó"9Rename "lock" which hides the field declared at line 167.(º·úã8òú ½À/
+]
+java:S1161•":Add the "@Override" annotation above this method signature(İî‹âùÿÿÿÿ8úú ½À/
+W
+java:S1117–"9Rename "lock" which hides the field declared at line 167.(º·úã8ûú ½À/
+W
+java:S1117§"9Rename "lock" which hides the field declared at line 167.(º·úã8†û ½À/
+]
+java:S1161¾":Add the "@Override" annotation above this method signature(­­¬Îùÿÿÿÿ8‰û ½À/
+W
+java:S1117¿"9Rename "lock" which hides the field declared at line 167.(º·úã8Šû ½À/
+]
+java:S1161Õ":Add the "@Override" annotation above this method signature(•ù•ãşÿÿÿÿ8Œû ½À/
+W
+java:S1117Ö"9Rename "lock" which hides the field declared at line 167.(º·úã8û ½À/
+X
+java:S1161ß":Add the "@Override" annotation above this method signature(Á»›ê8û ½À/
+W
+java:S1117à"9Rename "lock" which hides the field declared at line 167.(º·úã8û ½À/
+W
+java:S1117‹"9Rename "lock" which hides the field declared at line 167.(º·úã8–û ½À/
+]
+java:S1161":Add the "@Override" annotation above this method signature(Ş‚ÄÔıÿÿÿÿ8™û ½À/
+W
+java:S1117"9Rename "lock" which hides the field declared at line 167.(º·úã8šû ½À/
+]
+java:S1161Ï":Add the "@Override" annotation above this method signature(©Ûø¿ûÿÿÿÿ8û ½À/
+W
+java:S1117Ğ"9Rename "lock" which hides the field declared at line 167.(º·úã8û ½À/
+]
+java:S1161…":Add the "@Override" annotation above this method signature(¦³üëûÿÿÿÿ8§û ½À/
+b
+java:S1659Ò"?Declare "lo" and all following declarations on a separate line.(Ö£¶ìÿÿÿÿÿ8½û ½À/
+W
+java:S1161Ø":Add the "@Override" annotation above this method signature(ºˆ¡8ğû ½À/
+a
+java:S1659Ù">Declare "i" and all following declarations on a separate line.(šÌÕ°øÿÿÿÿ8øû ½À/
+E
+java:S1905ï"'Remove this unnecessary cast to "long".(í€ 8„ü ½À/
+]
+java:S1161…":Add the "@Override" annotation above this method signature(ª÷‚µøÿÿÿÿ8ˆü ½À/
+w
+java:S2293œ"YReplace the type specification in this constructor call with the diamond operator ("<>").(ñÎà¢8ü ½À/
+w
+java:S2293Ô"YReplace the type specification in this constructor call with the diamond operator ("<>").(¥²ª8‘ü ½À/
+|
+java:S2293†"YReplace the type specification in this constructor call with the diamond operator ("<>").(£€şøÿÿÿÿ8“ü ½À/
+Q
+java:S1121”".Extract the assignment out of this expression.(Å…‘Šúÿÿÿÿ8—ü ½À/
+Q
+java:S1121¨".Extract the assignment out of this expression.(Å…‘Šúÿÿÿÿ8˜ü ½À/
+L
+java:S1121Í".Extract the assignment out of this expression.(ÀˆÀ¨8›ü ½À/
+L
+java:S1121Ô".Extract the assignment out of this expression.(¥²ª8ü ½À/
+L
+java:S1121İ".Extract the assignment out of this expression.(ƒàµ¿8ü ½À/
+R
+java:S11913"5Use classes from the Java API instead of Sun classes.(Àãé8°ü ½À/
+X
+java:S2222â";Unlock this lock along all executions paths of this method.(¤­k8“ÿ ½À/
+Z
+java:S2589º"7Remove this expression which always evaluates to "true"(’¯Ö³ùÿÿÿÿ8˜ÿ ½À/

@@ -1,0 +1,67 @@
+
+@
+java:S2160S"+Override the "equals" method in this class.(Á‰A
+l
+java:S4144”"UUpdate this method so that its implementation is not identical to "peek" on line 706.(ùÎ³
+q
+java:S4144®"UUpdate this method so that its implementation is not identical to "poll" on line 728.(ÓÈ¸óøÿÿÿÿ
+R	java:S125ª"<This block of commented-out lines of code should be removed.(ûöÿ
+R	java:S125Ã"<This block of commented-out lines of code should be removed.(Ã‚à
+W	java:S125á"<This block of commented-out lines of code should be removed.(Üµê’ùÿÿÿÿ
+W	java:S125ş"<This block of commented-out lines of code should be removed.(´¶«øÿÿÿÿ
+V
+java:S1161ï":Add the "@Override" annotation above this method signature(­­¬Îùÿÿÿÿ
+P
+java:S1161…":Add the "@Override" annotation above this method signature(å{
+V
+java:S1161˜":Add the "@Override" annotation above this method signature(İî‹âùÿÿÿÿ
+Q
+java:S1161¸":Add the "@Override" annotation above this method signature(˜Íşô
+P
+java:S1161Ë":Add the "@Override" annotation above this method signature(µ´ˆ2
+>
+java:S1659Ó""Declare "succ" on a separate line.(È®Ğûÿÿÿÿ
+V
+java:S1161ö":Add the "@Override" annotation above this method signature(Ş‚ÄÔıÿÿÿÿ
+V
+java:S1161‘":Add the "@Override" annotation above this method signature(€¼»ûÿÿÿÿ
+V
+java:S1161Ÿ":Add the "@Override" annotation above this method signature(İìÆíøÿÿÿÿ
+V
+java:S1161°":Add the "@Override" annotation above this method signature(İÏç´øÿÿÿÿ
+Q
+java:S1161Â":Add the "@Override" annotation above this method signature(‡ğÎ
+R	java:S125í"<This block of commented-out lines of code should be removed.(Şõß½
+V
+java:S1161‰":Add the "@Override" annotation above this method signature(«ÚÖİüÿÿÿÿ
+V
+java:S1161¨":Add the "@Override" annotation above this method signature(ì¦Æıûÿÿÿÿ
+R	java:S125¦"<This block of commented-out lines of code should be removed.(¸œş
+P
+java:S1161ñ":Add the "@Override" annotation above this method signature(ºˆ¡
+j
+java:S2272"NAdd a "NoSuchElementException" for iteration beyond the end of the collection.(¤¿ğßıÿÿÿÿ
+V
+java:S1161 ":Add the "@Override" annotation above this method signature(¦³üëûÿÿÿÿ
+j
+java:S2975´"SRemove this "clone" implementation; use a copy constructor or copy factory instead.(²ÈŞ
+_
+java:S1182´"HUse super.clone() to create and seed the cloned instance to be returned.(²ÈŞ
+V
+java:S1161Ñ":Add the "@Override" annotation above this method signature(•ù•ãşÿÿÿÿ
+V
+java:S1161€	":Add the "@Override" annotation above this method signature(©Ûø¿ûÿÿÿÿ
+T
+java:S1117±	"8Rename "size" which hides the field declared at line 87.(Ó•š•øÿÿÿÿ
+W	java:S125Ğ	"<This block of commented-out lines of code should be removed.(àı‘Ïûÿÿÿÿ
+>
+java:S1905ì	"'Remove this unnecessary cast to "long".(”Íàı
+P
+java:S1161‚
+":Add the "@Override" annotation above this method signature(ºˆ¡
+6
+java:S1659ƒ
+"Declare "n" on a separate line.(´£ºŒ
+u
+java:S2293Ê	"YReplace the type specification in this constructor call with the diamond operator ("<>").(ªÊúùúÿÿÿÿ
+s	java:S127€"XRefactor the code in order to not assign to this loop counter from within the loop body.(ïßóùøÿÿÿÿ

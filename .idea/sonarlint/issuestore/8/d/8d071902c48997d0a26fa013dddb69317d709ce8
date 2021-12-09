@@ -1,0 +1,137 @@
+
+\	java:S112•"FDefine and throw a dedicated exception instead of using a generic one.(Âğğ
+u	java:S115"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(åæİÌúÿÿÿÿ
+A
+java:S3077d"&Use an "AtomicReferenceArray" instead.(²‘Ğÿıÿÿÿÿ
+j
+java:S2975­"SRemove this "clone" implementation; use a copy constructor or copy factory instead.(²ÈŞ
+A
+java:S1197ó"*Move the array designators [] to the type.(ÿèŠ’
+O
+java:S1117—"8Rename "lock" which hides the field declared at line 97.(º·úã
+O
+java:S1117³"8Rename "lock" which hides the field declared at line 97.(º·úã
+O
+java:S1117É"8Rename "lock" which hides the field declared at line 97.(º·úã
+O
+java:S1117ê"8Rename "lock" which hides the field declared at line 97.(º·úã
+C
+java:S1125"'Remove the unnecessary boolean literal.(±†¥Óúÿÿÿÿ
+O
+java:S1117˜"8Rename "lock" which hides the field declared at line 97.(º·úã
+W
+java:S1119";Refactor the code to remove this label and the need for it.(ïÏïóûÿÿÿÿ
+O
+java:S1117Æ"8Rename "lock" which hides the field declared at line 97.(º·úã
+C
+java:S1125æ"'Remove the unnecessary boolean literal.(¥õ¡Ğüÿÿÿÿ
+O
+java:S1117ï"8Rename "lock" which hides the field declared at line 97.(º·úã
+O
+java:S1117¬"8Rename "lock" which hides the field declared at line 97.(º·úã
+O
+java:S1117×"8Rename "lock" which hides the field declared at line 97.(º·úã
+O
+java:S1117ÿ"8Rename "lock" which hides the field declared at line 97.(º·úã
+O
+java:S1117œ"8Rename "lock" which hides the field declared at line 97.(º·úã
+O
+java:S1117´"8Rename "lock" which hides the field declared at line 97.(º·úã
+O
+java:S1117Ø"8Rename "lock" which hides the field declared at line 97.(º·úã
+Q
+java:S1161õ":Add the "@Override" annotation above this method signature(ïåê
+Q
+java:S1161ÿ":Add the "@Override" annotation above this method signature(µ³‹¬
+O
+java:S1117"8Rename "lock" which hides the field declared at line 97.(º·úã
+V
+java:S1161™":Add the "@Override" annotation above this method signature(à½éòúÿÿÿÿ
+O
+java:S1117›"8Rename "lock" which hides the field declared at line 97.(º·úã
+Q
+java:S1161«":Add the "@Override" annotation above this method signature(é±Şâ
+O
+java:S1117¬"8Rename "lock" which hides the field declared at line 97.(º·úã
+W
+java:S1126”"AReplace this if-then-else statement by a single return statement.(â™ÔR
+V
+java:S1161æ":Add the "@Override" annotation above this method signature(ª÷‚µøÿÿÿÿ
+O
+java:S1117Ì	"8Rename "lock" which hides the field declared at line 97.(º·úã
+C
+java:S2388Ø
+",Prefix this call to "indexOf" with "super.".(¹¸Æ
+G
+java:S2160è	"+Override the "equals" method in this class.(¾ıË™ûÿÿÿÿ
+V
+java:S1161‡
+":Add the "@Override" annotation above this method signature(İìÆíøÿÿÿÿ
+V
+java:S1161¬
+":Add the "@Override" annotation above this method signature(İÏç´øÿÿÿÿ
+V
+java:S1161»
+":Add the "@Override" annotation above this method signature(Ş‚ÄÔıÿÿÿÿ
+Q
+java:S1161È
+":Add the "@Override" annotation above this method signature(‡ğÎ
+V
+java:S1161×
+":Add the "@Override" annotation above this method signature(İî‹âùÿÿÿÿ
+P
+java:S1161ß
+":Add the "@Override" annotation above this method signature(¹æá5
+V
+java:S1161ê
+":Add the "@Override" annotation above this method signature(Î‹Ê÷ıÿÿÿÿ
+Q
+java:S1161ø
+":Add the "@Override" annotation above this method signature(¾ 
+Q
+java:S1161†":Add the "@Override" annotation above this method signature(ïåê
+V
+java:S1161•":Add the "@Override" annotation above this method signature(à½éòúÿÿÿÿ
+Q
+java:S1161­":Add the "@Override" annotation above this method signature(é±Şâ
+V
+java:S1161Â":Add the "@Override" annotation above this method signature(‚Õ°ªÿÿÿÿÿ
+Q
+java:S1161ê":Add the "@Override" annotation above this method signature(Ö÷•Â
+Q
+java:S1161’":Add the "@Override" annotation above this method signature(µ³‹¬
+V
+java:S1161º":Add the "@Override" annotation above this method signature(ª÷‚µøÿÿÿÿ
+p
+java:S2293¶"YReplace the type specification in this constructor call with the diamond operator ("<>").(Üùºû
+p
+java:S2293Â"YReplace the type specification in this constructor call with the diamond operator ("<>").(Üùºû
+p
+java:S2293Õ"YReplace the type specification in this constructor call with the diamond operator ("<>").(£Íô÷
+p
+java:S2293Ó	"YReplace the type specification in this constructor call with the diamond operator ("<>").(É °¾
+p
+java:S2293ä
+"YReplace the type specification in this constructor call with the diamond operator ("<>").(ø› ä
+o
+java:S2293ò
+"YReplace the type specification in this constructor call with the diamond operator ("<>").(¹£ä	
+o
+java:S2293ÿ
+"YReplace the type specification in this constructor call with the diamond operator ("<>").(¯¾½=
+_
+java:S1192Ï"HDefine a constant instead of duplicating this literal "Index: " 5 times.(·“ûê
+`
+java:S1192Ğ"IDefine a constant instead of duplicating this literal ", Size: " 3 times.(ç…Šç
+J
+java:S1121§".Extract the assignment out of this expression.(ó›‚¶üÿÿÿÿ
+J
+java:S1121¼".Extract the assignment out of this expression.(ó›‚¶üÿÿÿÿ
+J
+java:S1121á".Extract the assignment out of this expression.(ó›‚¶üÿÿÿÿ
+J
+java:S1121‰".Extract the assignment out of this expression.(ó›‚¶üÿÿÿÿ
+J
+java:S1121±".Extract the assignment out of this expression.(ó›‚¶üÿÿÿÿ
+K
+java:S11915"5Use classes from the Java API instead of Sun classes.(Àãé
