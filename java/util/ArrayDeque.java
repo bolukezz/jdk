@@ -1,33 +1,8 @@
 /*
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
  */
 
 /*
- *
- *
- *
- *
- *
  * Written by Josh Bloch of Google Inc. and released to the public domain,
  * as explained at http://creativecommons.org/publicdomain/zero/1.0/.
  */
@@ -39,53 +14,81 @@ import java.util.function.Consumer;
 import sun.misc.SharedSecrets;
 
 /**
- * Resizable-array implementation of the {@link Deque} interface.  Array
+ * Resizable-array implementation of the {@link Deque} interface. Array
  * deques have no capacity restrictions; they grow as necessary to support
- * usage.  They are not thread-safe; in the absence of external
+ * usage. They are not thread-safe; in the absence of external
  * synchronization, they do not support concurrent access by multiple threads.
- * Null elements are prohibited.  This class is likely to be faster than
+ * Null elements are prohibited. This class is likely to be faster than
  * {@link Stack} when used as a stack, and faster than {@link LinkedList}
  * when used as a queue.
  *
- * <p>Most {@code ArrayDeque} operations run in amortized constant time.
+ * <p>
+ * Most {@code ArrayDeque} operations run in amortized constant time.
  * Exceptions include {@link #remove(Object) remove}, {@link
  * #removeFirstOccurrence removeFirstOccurrence}, {@link #removeLastOccurrence
  * removeLastOccurrence}, {@link #contains contains}, {@link #iterator
  * iterator.remove()}, and the bulk operations, all of which run in linear
  * time.
  *
- * <p>The iterators returned by this class's {@code iterator} method are
+ * <p>
+ * The iterators returned by this class's {@code iterator} method are
  * <i>fail-fast</i>: If the deque is modified at any time after the iterator
  * is created, in any way except through the iterator's own {@code remove}
  * method, the iterator will generally throw a {@link
- * ConcurrentModificationException}.  Thus, in the face of concurrent
+ * ConcurrentModificationException}. Thus, in the face of concurrent
  * modification, the iterator fails quickly and cleanly, rather than risking
  * arbitrary, non-deterministic behavior at an undetermined time in the
  * future.
  *
- * <p>Note that the fail-fast behavior of an iterator cannot be guaranteed
+ * <p>
+ * Note that the fail-fast behavior of an iterator cannot be guaranteed
  * as it is, generally speaking, impossible to make any hard guarantees in the
- * presence of unsynchronized concurrent modification.  Fail-fast iterators
+ * presence of unsynchronized concurrent modification. Fail-fast iterators
  * throw {@code ConcurrentModificationException} on a best-effort basis.
  * Therefore, it would be wrong to write a program that depended on this
  * exception for its correctness: <i>the fail-fast behavior of iterators
  * should be used only to detect bugs.</i>
  *
- * <p>This class and its iterator implement all of the
+ * <p>
+ * This class and its iterator implement all of the
  * <em>optional</em> methods of the {@link Collection} and {@link
  * Iterator} interfaces.
  *
- * <p>This class is a member of the
+ * <p>
+ * This class is a member of the
  * <a href="{@docRoot}/../technotes/guides/collections/index.html">
  * Java Collections Framework</a>.
  *
- * @author  Josh Bloch and Doug Lea
- * @since   1.6
+ * @author Josh Bloch and Doug Lea
+ * @since 1.6
  * @param <E> the type of elements held in this collection
  */
+
+
+/**
+ * 总结
+ * （1）ArrayDeque是采用数组方式实现的双端队列；
+ *
+ * （2）ArrayDeque的出队入队是通过头尾指针循环利用数组实现的；
+ *
+ * （3）ArrayDeque容量不足时是会扩容的，每次扩容容量增加一倍；
+ *
+ * （4）ArrayDeque可以直接作为栈使用；
+ *
+ * 彩蛋
+ * 双端队列与双重队列？
+ *
+ * 双端队列（Deque）是指队列的两端都可以进出元素的队列，里面存储的是实实在在的元素。
+ *
+ * 双重队列（Dual Queue）是指一种队列有两种用途，里面的节点分为数据节点和非数据节点，它是LinkedTransferQueue使用的数据结构
+ * 
+ * @param <E>
+ */
 public class ArrayDeque<E> extends AbstractCollection<E>
-                           implements Deque<E>, Cloneable, Serializable
-{
+        implements
+            Deque<E>,
+            Cloneable,
+            Serializable {
     /**
      * The array in which the elements of the deque are stored.
      * The capacity of the deque is the length of this array, which is
@@ -93,9 +96,10 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * full, except transiently within an addX method where it is
      * resized (see doubleCapacity) immediately upon becoming full,
      * thus avoiding head and tail wrapping around to equal each
-     * other.  We also guarantee that all array cells not holding
+     * other. We also guarantee that all array cells not holding
      * deque elements are always null.
      */
+    // 存储元素的数组
     transient Object[] elements; // non-private to simplify nested class access
 
     /**
@@ -103,36 +107,41 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * element that would be removed by remove() or pop()); or an
      * arbitrary number equal to tail if the deque is empty.
      */
+    // 队列头位置
     transient int head;
 
     /**
      * The index at which the next element would be added to the tail
      * of the deque (via addLast(E), add(E), or push(E)).
      */
+    // 队列尾位置
     transient int tail;
 
     /**
      * The minimum capacity that we'll use for a newly created deque.
      * Must be a power of 2.
      */
+    // 最小初始容量
     private static final int MIN_INITIAL_CAPACITY = 8;
 
-    // ******  Array allocation and resizing utilities ******
+    // ****** Array allocation and resizing utilities ******
 
+    // 计算容量，这段代码的逻辑是算出大于numElements的最接近的2的n次方且不小于8
+    // 比如，3计算出来是8，9算出来是16，33算出来是64
     private static int calculateSize(int numElements) {
         int initialCapacity = MIN_INITIAL_CAPACITY;
         // Find the best power of two to hold elements.
         // Tests "<=" because arrays aren't kept full.
         if (numElements >= initialCapacity) {
             initialCapacity = numElements;
-            initialCapacity |= (initialCapacity >>>  1);
-            initialCapacity |= (initialCapacity >>>  2);
-            initialCapacity |= (initialCapacity >>>  4);
-            initialCapacity |= (initialCapacity >>>  8);
+            initialCapacity |= (initialCapacity >>> 1);
+            initialCapacity |= (initialCapacity >>> 2);
+            initialCapacity |= (initialCapacity >>> 4);
+            initialCapacity |= (initialCapacity >>> 8);
             initialCapacity |= (initialCapacity >>> 16);
             initialCapacity++;
 
-            if (initialCapacity < 0)   // Too many elements, must back off
+            if (initialCapacity < 0) // Too many elements, must back off
                 initialCapacity >>>= 1;// Good luck allocating 2 ^ 30 elements
         }
         return initialCapacity;
@@ -141,35 +150,46 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     /**
      * Allocates empty array to hold the given number of elements.
      *
-     * @param numElements  the number of elements to hold
+     * @param numElements the number of elements to hold
      */
+    // 初始化数组
     private void allocateElements(int numElements) {
         elements = new Object[calculateSize(numElements)];
     }
 
     /**
-     * Doubles the capacity of this deque.  Call only when full, i.e.,
+     * Doubles the capacity of this deque. Call only when full, i.e.,
      * when head and tail have wrapped around to become equal.
      */
     private void doubleCapacity() {
         assert head == tail;
+        // 头指针的位置
         int p = head;
+        // 旧数组长度
         int n = elements.length;
+        // 头指针离数组尾的距离
         int r = n - p; // number of elements to the right of p
+        // 新长度为旧数组的两倍
         int newCapacity = n << 1;
+        // 判断是否溢出了
         if (newCapacity < 0)
             throw new IllegalStateException("Sorry, deque too big");
+        // 新建新数组
         Object[] a = new Object[newCapacity];
+        // 将旧数组head之后的元素拷贝到新数组
         System.arraycopy(elements, p, a, 0, r);
+        // 将旧数组下标0到head之间的元素拷贝到新数组中
         System.arraycopy(elements, 0, a, r, p);
+        // 赋值为新数组
         elements = a;
+        // head指向0，tail指向旧数组长度表示的位置
         head = 0;
         tail = n;
     }
 
     /**
      * Copies the elements from our element array into the specified array,
-     * in order (from first to last element in the deque).  It is assumed
+     * in order (from first to last element in the deque). It is assumed
      * that the array is large enough to hold all elements in the deque.
      *
      * @return its argument
@@ -189,6 +209,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * Constructs an empty array deque with an initial capacity
      * sufficient to hold 16 elements.
      */
+    // 默认构造器，初始容量为16
     public ArrayDeque() {
         elements = new Object[16];
     }
@@ -197,8 +218,9 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * Constructs an empty array deque with an initial capacity
      * sufficient to hold the specified number of elements.
      *
-     * @param numElements  lower bound on initial capacity of the deque
+     * @param numElements lower bound on initial capacity of the deque
      */
+    // 指定元素个数初始化
     public ArrayDeque(int numElements) {
         allocateElements(numElements);
     }
@@ -206,7 +228,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     /**
      * Constructs a deque containing the elements of the specified
      * collection, in the order they are returned by the collection's
-     * iterator.  (The first element returned by the collection's
+     * iterator. (The first element returned by the collection's
      * iterator becomes the first element, or <i>front</i> of the
      * deque.)
      *
@@ -228,10 +250,18 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * @param e the element to add
      * @throws NullPointerException if the specified element is null
      */
+    // 从队列头入队
     public void addFirst(E e) {
+        // 不允许null元素
         if (e == null)
             throw new NullPointerException();
+        // 将head指针减1并与数组长度减1取模
+        // 这是为了防止数组到头了边界溢出
+        // 如果到头了就从尾再往前
+        // 相当于循环利用队列
         elements[head = (head - 1) & (elements.length - 1)] = e;
+        // 如果头尾挨在一起了，就扩容
+        // 扩容规则也很简单，直接2倍
         if (head == tail)
             doubleCapacity();
     }
@@ -239,16 +269,22 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     /**
      * Inserts the specified element at the end of this deque.
      *
-     * <p>This method is equivalent to {@link #add}.
+     * <p>
+     * This method is equivalent to {@link #add}.
      *
      * @param e the element to add
      * @throws NullPointerException if the specified element is null
      */
+    // 从队列尾入队列
     public void addLast(E e) {
+        // 不允许有null元素
         if (e == null)
             throw new NullPointerException();
+        // 在尾指针的位置放入元素
+        // 可以看到tail指针指向的是队列最后一个元素的下一个位置
         elements[tail] = e;
-        if ( (tail = (tail + 1) & (elements.length - 1)) == head)
+        // tail指针加1，如果到数组尾了就从头开始
+        if ((tail = (tail + 1) & (elements.length - 1)) == head)
             doubleCapacity();
     }
 
@@ -296,26 +332,39 @@ public class ArrayDeque<E> extends AbstractCollection<E>
         return x;
     }
 
+    // 从队列头出队
     public E pollFirst() {
         int h = head;
         @SuppressWarnings("unchecked")
+        // 取队列头元素
         E result = (E) elements[h];
         // Element is null if deque empty
+        // 如果队列为空，就返回null
         if (result == null)
             return null;
-        elements[h] = null;     // Must null out slot
+        // 将队列头置为空
+        elements[h] = null; // Must null out slot
+        // 队列头指针右移一位
         head = (h + 1) & (elements.length - 1);
+        // 返回取得的元素
         return result;
     }
 
+    // 从队尾出队，这里出队没有缩容
     public E pollLast() {
+        // 尾指针左移一位
         int t = (tail - 1) & (elements.length - 1);
         @SuppressWarnings("unchecked")
+        // 取当前尾指针处元素
         E result = (E) elements[t];
+        // 如果队列为空返回null
         if (result == null)
             return null;
+        // 将当前尾指针处置为空
         elements[t] = null;
+        // tail指向新的尾指针处
         tail = t;
+        // 返回取得的元素
         return result;
     }
 
@@ -370,7 +419,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
         int mask = elements.length - 1;
         int i = head;
         Object x;
-        while ( (x = elements[i]) != null) {
+        while ((x = elements[i]) != null) {
             if (o.equals(x)) {
                 delete(i);
                 return true;
@@ -398,7 +447,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
         int mask = elements.length - 1;
         int i = (tail - 1) & mask;
         Object x;
-        while ( (x = elements[i]) != null) {
+        while ((x = elements[i]) != null) {
             if (o.equals(x)) {
                 delete(i);
                 return true;
@@ -413,7 +462,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     /**
      * Inserts the specified element at the end of this deque.
      *
-     * <p>This method is equivalent to {@link #addLast}.
+     * <p>
+     * This method is equivalent to {@link #addLast}.
      *
      * @param e the element to add
      * @return {@code true} (as specified by {@link Collection#add})
@@ -427,7 +477,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     /**
      * Inserts the specified element at the end of this deque.
      *
-     * <p>This method is equivalent to {@link #offerLast}.
+     * <p>
+     * This method is equivalent to {@link #offerLast}.
      *
      * @param e the element to add
      * @return {@code true} (as specified by {@link Queue#offer})
@@ -443,7 +494,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * This method differs from {@link #poll poll} only in that it throws an
      * exception if this deque is empty.
      *
-     * <p>This method is equivalent to {@link #removeFirst}.
+     * <p>
+     * This method is equivalent to {@link #removeFirst}.
      *
      * @return the head of the queue represented by this deque
      * @throws NoSuchElementException {@inheritDoc}
@@ -457,7 +509,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * (in other words, the first element of this deque), or returns
      * {@code null} if this deque is empty.
      *
-     * <p>This method is equivalent to {@link #pollFirst}.
+     * <p>
+     * This method is equivalent to {@link #pollFirst}.
      *
      * @return the head of the queue represented by this deque, or
      *         {@code null} if this deque is empty
@@ -468,10 +521,11 @@ public class ArrayDeque<E> extends AbstractCollection<E>
 
     /**
      * Retrieves, but does not remove, the head of the queue represented by
-     * this deque.  This method differs from {@link #peek peek} only in
+     * this deque. This method differs from {@link #peek peek} only in
      * that it throws an exception if this deque is empty.
      *
-     * <p>This method is equivalent to {@link #getFirst}.
+     * <p>
+     * This method is equivalent to {@link #getFirst}.
      *
      * @return the head of the queue represented by this deque
      * @throws NoSuchElementException {@inheritDoc}
@@ -484,7 +538,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * Retrieves, but does not remove, the head of the queue represented by
      * this deque, or returns {@code null} if this deque is empty.
      *
-     * <p>This method is equivalent to {@link #peekFirst}.
+     * <p>
+     * This method is equivalent to {@link #peekFirst}.
      *
      * @return the head of the queue represented by this deque, or
      *         {@code null} if this deque is empty
@@ -496,10 +551,11 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     // *** Stack methods ***
 
     /**
-     * Pushes an element onto the stack represented by this deque.  In other
+     * Pushes an element onto the stack represented by this deque. In other
      * words, inserts the element at the front of this deque.
      *
-     * <p>This method is equivalent to {@link #addFirst}.
+     * <p>
+     * This method is equivalent to {@link #addFirst}.
      *
      * @param e the element to push
      * @throws NullPointerException if the specified element is null
@@ -509,10 +565,11 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     }
 
     /**
-     * Pops an element from the stack represented by this deque.  In other
+     * Pops an element from the stack represented by this deque. In other
      * words, removes and returns the first element of this deque.
      *
-     * <p>This method is equivalent to {@link #removeFirst()}.
+     * <p>
+     * This method is equivalent to {@link #removeFirst()}.
      *
      * @return the element at the front of this deque (which is the top
      *         of the stack represented by this deque)
@@ -524,18 +581,20 @@ public class ArrayDeque<E> extends AbstractCollection<E>
 
     private void checkInvariants() {
         assert elements[tail] == null;
-        assert head == tail ? elements[head] == null :
-            (elements[head] != null &&
-             elements[(tail - 1) & (elements.length - 1)] != null);
+        assert head == tail
+                ? elements[head] == null
+                : (elements[head] != null &&
+                        elements[(tail - 1) & (elements.length - 1)] != null);
         assert elements[(head - 1) & (elements.length - 1)] == null;
     }
 
     /**
      * Removes the element at the specified position in the elements array,
-     * adjusting head and tail as necessary.  This can result in motion of
+     * adjusting head and tail as necessary. This can result in motion of
      * elements backwards or forwards in the array.
      *
-     * <p>This method is called delete rather than remove to emphasize
+     * <p>
+     * This method is called delete rather than remove to emphasize
      * that its semantics differ from those of {@link List#remove(int)}.
      *
      * @return true if elements moved backwards
@@ -547,7 +606,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
         final int h = head;
         final int t = tail;
         final int front = (i - h) & mask;
-        final int back  = (t - i) & mask;
+        final int back = (t - i) & mask;
 
         // Invariant: head <= i < tail mod circularity
         if (front >= ((t - h) & mask))
@@ -600,8 +659,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     }
 
     /**
-     * Returns an iterator over the elements in this deque.  The elements
-     * will be ordered from first (head) to last (tail).  This is the same
+     * Returns an iterator over the elements in this deque. The elements
+     * will be ordered from first (head) to last (tail). This is the same
      * order that elements would be dequeued (via successive calls to
      * {@link #remove} or popped (via successive calls to {@link #pop}).
      *
@@ -667,7 +726,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
             int m = a.length - 1, f = fence, i = cursor;
             cursor = f;
             while (i != f) {
-                @SuppressWarnings("unchecked") E e = (E)a[i];
+                @SuppressWarnings("unchecked")
+                E e = (E) a[i];
                 i = (i + 1) & m;
                 if (e == null)
                     throw new ConcurrentModificationException();
@@ -727,7 +787,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
         int mask = elements.length - 1;
         int i = head;
         Object x;
-        while ( (x = elements[i]) != null) {
+        while ((x = elements[i]) != null) {
             if (o.equals(x))
                 return true;
             i = (i + 1) & mask;
@@ -743,7 +803,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * Returns {@code true} if this deque contained the specified element
      * (or equivalently, if this deque changed as a result of the call).
      *
-     * <p>This method is equivalent to {@link #removeFirstOccurrence(Object)}.
+     * <p>
+     * This method is equivalent to {@link #removeFirstOccurrence(Object)}.
      *
      * @param o element to be removed from this deque, if present
      * @return {@code true} if this deque contained the specified element
@@ -774,11 +835,13 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * Returns an array containing all of the elements in this deque
      * in proper sequence (from first to last element).
      *
-     * <p>The returned array will be "safe" in that no references to it are
-     * maintained by this deque.  (In other words, this method must allocate
-     * a new array).  The caller is thus free to modify the returned array.
+     * <p>
+     * The returned array will be "safe" in that no references to it are
+     * maintained by this deque. (In other words, this method must allocate
+     * a new array). The caller is thus free to modify the returned array.
      *
-     * <p>This method acts as bridge between array-based and collection-based
+     * <p>
+     * This method acts as bridge between array-based and collection-based
      * APIs.
      *
      * @return an array containing all of the elements in this deque
@@ -790,44 +853,52 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     /**
      * Returns an array containing all of the elements in this deque in
      * proper sequence (from first to last element); the runtime type of the
-     * returned array is that of the specified array.  If the deque fits in
-     * the specified array, it is returned therein.  Otherwise, a new array
+     * returned array is that of the specified array. If the deque fits in
+     * the specified array, it is returned therein. Otherwise, a new array
      * is allocated with the runtime type of the specified array and the
      * size of this deque.
      *
-     * <p>If this deque fits in the specified array with room to spare
+     * <p>
+     * If this deque fits in the specified array with room to spare
      * (i.e., the array has more elements than this deque), the element in
      * the array immediately following the end of the deque is set to
      * {@code null}.
      *
-     * <p>Like the {@link #toArray()} method, this method acts as bridge between
-     * array-based and collection-based APIs.  Further, this method allows
+     * <p>
+     * Like the {@link #toArray()} method, this method acts as bridge between
+     * array-based and collection-based APIs. Further, this method allows
      * precise control over the runtime type of the output array, and may,
      * under certain circumstances, be used to save allocation costs.
      *
-     * <p>Suppose {@code x} is a deque known to contain only strings.
+     * <p>
+     * Suppose {@code x} is a deque known to contain only strings.
      * The following code can be used to dump the deque into a newly
      * allocated array of {@code String}:
      *
-     *  <pre> {@code String[] y = x.toArray(new String[0]);}</pre>
+     * <pre>
+     * {
+     *     &#64;code
+     *     String[] y = x.toArray(new String[0]);
+     * }
+     * </pre>
      *
      * Note that {@code toArray(new Object[0])} is identical in function to
      * {@code toArray()}.
      *
      * @param a the array into which the elements of the deque are to
-     *          be stored, if it is big enough; otherwise, a new array of the
-     *          same runtime type is allocated for this purpose
+     *            be stored, if it is big enough; otherwise, a new array of the
+     *            same runtime type is allocated for this purpose
      * @return an array containing all of the elements in this deque
      * @throws ArrayStoreException if the runtime type of the specified array
-     *         is not a supertype of the runtime type of every element in
-     *         this deque
+     *             is not a supertype of the runtime type of every element in
+     *             this deque
      * @throws NullPointerException if the specified array is null
      */
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
         int size = size();
         if (a.length < size)
-            a = (T[])java.lang.reflect.Array.newInstance(
+            a = (T[]) java.lang.reflect.Array.newInstance(
                     a.getClass().getComponentType(), size);
         copyElements(a);
         if (a.length > size)
@@ -859,8 +930,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * Saves this deque to a stream (that is, serializes it).
      *
      * @serialData The current size ({@code int}) of the deque,
-     * followed by all of its elements (each an object reference) in
-     * first-to-last order.
+     *             followed by all of its elements (each an object reference) in
+     *             first-to-last order.
      */
     private void writeObject(java.io.ObjectOutputStream s)
             throws java.io.IOException {
@@ -900,9 +971,10 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * and <em>fail-fast</em> {@link Spliterator} over the elements in this
      * deque.
      *
-     * <p>The {@code Spliterator} reports {@link Spliterator#SIZED},
+     * <p>
+     * The {@code Spliterator} reports {@link Spliterator#SIZED},
      * {@link Spliterator#SUBSIZED}, {@link Spliterator#ORDERED}, and
-     * {@link Spliterator#NONNULL}.  Overriding implementations should document
+     * {@link Spliterator#NONNULL}. Overriding implementations should document
      * the reporting of additional characteristic values.
      *
      * @return a {@code Spliterator} over the elements in this deque
@@ -914,8 +986,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
 
     static final class DeqSpliterator<E> implements Spliterator<E> {
         private final ArrayDeque<E> deq;
-        private int fence;  // -1 until first use
-        private int index;  // current index, modified on traverse/split
+        private int fence; // -1 until first use
+        private int index; // current index, modified on traverse/split
 
         /** Creates new spliterator covering the given array and range */
         DeqSpliterator(ArrayDeque<E> deq, int origin, int fence) {
@@ -951,7 +1023,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
             int m = a.length - 1, f = getFence(), i = index;
             index = f;
             while (i != f) {
-                @SuppressWarnings("unchecked") E e = (E)a[i];
+                @SuppressWarnings("unchecked")
+                E e = (E) a[i];
                 i = (i + 1) & m;
                 if (e == null)
                     throw new ConcurrentModificationException();
@@ -965,7 +1038,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
             Object[] a = deq.elements;
             int m = a.length - 1, f = getFence(), i = index;
             if (i != fence) {
-                @SuppressWarnings("unchecked") E e = (E)a[i];
+                @SuppressWarnings("unchecked")
+                E e = (E) a[i];
                 index = (i + 1) & m;
                 if (e == null)
                     throw new ConcurrentModificationException();
@@ -985,7 +1059,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
         @Override
         public int characteristics() {
             return Spliterator.ORDERED | Spliterator.SIZED |
-                Spliterator.NONNULL | Spliterator.SUBSIZED;
+                    Spliterator.NONNULL | Spliterator.SUBSIZED;
         }
     }
 

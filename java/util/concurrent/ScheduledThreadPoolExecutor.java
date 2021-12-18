@@ -1,39 +1,15 @@
 /*
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
  */
 
 /*
- *
- *
- *
- *
- *
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent;
+
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
@@ -48,13 +24,15 @@ import java.util.*;
  * flexibility or capabilities of {@link ThreadPoolExecutor} (which
  * this class extends) are required.
  *
- * <p>Delayed tasks execute no sooner than they are enabled, but
+ * <p>
+ * Delayed tasks execute no sooner than they are enabled, but
  * without any real-time guarantees about when, after they are
  * enabled, they will commence. Tasks scheduled for exactly the same
  * execution time are enabled in first-in-first-out (FIFO) order of
  * submission.
  *
- * <p>When a submitted task is cancelled before it is run, execution
+ * <p>
+ * When a submitted task is cancelled before it is run, execution
  * is suppressed. By default, such a cancelled task is not
  * automatically removed from the work queue until its delay
  * elapses. While this enables further inspection and monitoring, it
@@ -63,7 +41,8 @@ import java.util.*;
  * causes tasks to be immediately removed from the work queue at
  * time of cancellation.
  *
- * <p>Successive executions of a task scheduled via
+ * <p>
+ * Successive executions of a task scheduled via
  * {@code scheduleAtFixedRate} or
  * {@code scheduleWithFixedDelay} do not overlap. While different
  * executions may be performed by different threads, the effects of
@@ -71,7 +50,8 @@ import java.util.*;
  * href="package-summary.html#MemoryVisibility"><i>happen-before</i></a>
  * those of subsequent ones.
  *
- * <p>While this class inherits from {@link ThreadPoolExecutor}, a few
+ * <p>
+ * While this class inherits from {@link ThreadPoolExecutor}, a few
  * of the inherited tuning methods are not useful for it. In
  * particular, because it acts as a fixed-sized pool using
  * {@code corePoolSize} threads and an unbounded queue, adjustments
@@ -80,25 +60,27 @@ import java.util.*;
  * use {@code allowCoreThreadTimeOut} because this may leave the pool
  * without threads to handle tasks once they become eligible to run.
  *
- * <p><b>Extension notes:</b> This class overrides the
+ * <p>
+ * <b>Extension notes:</b> This class overrides the
  * {@link ThreadPoolExecutor#execute(Runnable) execute} and
  * {@link AbstractExecutorService#submit(Runnable) submit}
  * methods to generate internal {@link ScheduledFuture} objects to
- * control per-task delays and scheduling.  To preserve
+ * control per-task delays and scheduling. To preserve
  * functionality, any further overrides of these methods in
  * subclasses must invoke superclass versions, which effectively
- * disables additional task customization.  However, this class
+ * disables additional task customization. However, this class
  * provides alternative protected extension method
  * {@code decorateTask} (one version each for {@code Runnable} and
  * {@code Callable}) that can be used to customize the concrete task
  * types used to execute commands entered via {@code execute},
  * {@code submit}, {@code schedule}, {@code scheduleAtFixedRate},
- * and {@code scheduleWithFixedDelay}.  By default, a
+ * and {@code scheduleWithFixedDelay}. By default, a
  * {@code ScheduledThreadPoolExecutor} uses a task type extending
  * {@link FutureTask}. However, this may be modified or replaced using
  * subclasses of the form:
  *
- *  <pre> {@code
+ * <pre>
+ *  {@code
  * public class CustomScheduledExecutor extends ScheduledThreadPoolExecutor {
  *
  *   static class CustomTask<V> implements RunnableScheduledFuture<V> { ... }
@@ -113,40 +95,54 @@ import java.util.*;
  *       return new CustomTask<V>(c, task);
  *   }
  *   // ... add constructors, etc.
- * }}</pre>
+ * }}
+ * </pre>
  *
  * @since 1.5
  * @author Doug Lea
  */
+
+
+/**
+ * 实现定时任务有两个问题要解决，分别是指定未来某个时刻执行任务、重复执行。
+ *
+ * （1）指定某个时刻执行任务，是通过延时队列的特性来解决的；
+ *
+ * （2）重复执行，是通过在任务执行后再次把任务加入到队列中来解决的。
+ *
+ * 彩蛋
+ * 到这里基本上普通的线程池的源码解析就结束了，这种线程池是比较经典的实现方式，整体上来说，效率相对不是特别高，因为所有的工作线程共用同一个队列，每次从队列中取任务都要加锁解锁操作。
+ *
+ * 那么，能不能给每个工作线程配备一个任务队列呢，在提交任务的时候就把任务分配给指定的工作线程，这样在取任务的时候就不需要频繁的加锁解锁了。
+ *
+ * 答案是肯定的，下一章我们一起来看看这种基于“工作窃取”理论的线程池——ForkJoinPool。
+ */
 public class ScheduledThreadPoolExecutor
         extends ThreadPoolExecutor
-        implements ScheduledExecutorService {
+        implements
+            ScheduledExecutorService {
 
     /*
      * This class specializes ThreadPoolExecutor implementation by
-     *
      * 1. Using a custom task type, ScheduledFutureTask for
-     *    tasks, even those that don't require scheduling (i.e.,
-     *    those submitted using ExecutorService execute, not
-     *    ScheduledExecutorService methods) which are treated as
-     *    delayed tasks with a delay of zero.
-     *
+     * tasks, even those that don't require scheduling (i.e.,
+     * those submitted using ExecutorService execute, not
+     * ScheduledExecutorService methods) which are treated as
+     * delayed tasks with a delay of zero.
      * 2. Using a custom queue (DelayedWorkQueue), a variant of
-     *    unbounded DelayQueue. The lack of capacity constraint and
-     *    the fact that corePoolSize and maximumPoolSize are
-     *    effectively identical simplifies some execution mechanics
-     *    (see delayedExecute) compared to ThreadPoolExecutor.
-     *
+     * unbounded DelayQueue. The lack of capacity constraint and
+     * the fact that corePoolSize and maximumPoolSize are
+     * effectively identical simplifies some execution mechanics
+     * (see delayedExecute) compared to ThreadPoolExecutor.
      * 3. Supporting optional run-after-shutdown parameters, which
-     *    leads to overrides of shutdown methods to remove and cancel
-     *    tasks that should NOT be run after shutdown, as well as
-     *    different recheck logic when task (re)submission overlaps
-     *    with a shutdown.
-     *
+     * leads to overrides of shutdown methods to remove and cancel
+     * tasks that should NOT be run after shutdown, as well as
+     * different recheck logic when task (re)submission overlaps
+     * with a shutdown.
      * 4. Task decoration methods to allow interception and
-     *    instrumentation, which are needed because subclasses cannot
-     *    otherwise override submit methods to get this effect. These
-     *    don't have any impact on pool control logic though.
+     * instrumentation, which are needed because subclasses cannot
+     * otherwise override submit methods to get this effect. These
+     * don't have any impact on pool control logic though.
      */
 
     /**
@@ -178,7 +174,9 @@ public class ScheduledThreadPoolExecutor
     }
 
     private class ScheduledFutureTask<V>
-            extends FutureTask<V> implements RunnableScheduledFuture<V> {
+            extends FutureTask<V>
+            implements
+                RunnableScheduledFuture<V> {
 
         /** Sequence number to break ties FIFO */
         private final long sequenceNumber;
@@ -187,9 +185,9 @@ public class ScheduledThreadPoolExecutor
         private long time;
 
         /**
-         * Period in nanoseconds for repeating tasks.  A positive
-         * value indicates fixed-rate execution.  A negative value
-         * indicates fixed-delay execution.  A value of 0 indicates a
+         * Period in nanoseconds for repeating tasks. A positive
+         * value indicates fixed-rate execution. A negative value
+         * indicates fixed-delay execution. A value of 0 indicates a
          * non-repeating task.
          */
         private final long period;
@@ -240,7 +238,7 @@ public class ScheduledThreadPoolExecutor
             if (other == this) // compare zero if same object
                 return 0;
             if (other instanceof ScheduledFutureTask) {
-                ScheduledFutureTask<?> x = (ScheduledFutureTask<?>)other;
+                ScheduledFutureTask<?> x = (ScheduledFutureTask<?>) other;
                 long diff = time - x.time;
                 if (diff < 0)
                     return -1;
@@ -286,13 +284,20 @@ public class ScheduledThreadPoolExecutor
          * Overrides FutureTask version so as to reset/requeue if periodic.
          */
         public void run() {
+            // 是否重复执行
             boolean periodic = isPeriodic();
+            // 线程池状态判断
             if (!canRunInCurrentRunState(periodic))
                 cancel(false);
+            // 一次性任务，直接调用父类的run()方法，这个父类实际上是FutureTask
             else if (!periodic)
                 ScheduledFutureTask.super.run();
+            // 重复性任务，先调用父类的runAndReset()方法，这个父类也是FutureTask
+            // FutureTask的runAndReset()方法与run()方法类似，只是其任务运行完毕后不会把状态修改为NORMAL
             else if (ScheduledFutureTask.super.runAndReset()) {
+                // 设置下次执行的时间
                 setNextRunTime();
+                // 重复执行，这里发现定时线程池执行重复任务是在任务执行完毕后，又把任务扔回到了任务队列中
                 reExecutePeriodic(outerTask);
             }
         }
@@ -305,32 +310,37 @@ public class ScheduledThreadPoolExecutor
      * @param periodic true if this task periodic, false if delayed
      */
     boolean canRunInCurrentRunState(boolean periodic) {
-        return isRunningOrShutdown(periodic ?
-                                   continueExistingPeriodicTasksAfterShutdown :
-                                   executeExistingDelayedTasksAfterShutdown);
+        return isRunningOrShutdown(
+                periodic ? continueExistingPeriodicTasksAfterShutdown : executeExistingDelayedTasksAfterShutdown);
     }
 
     /**
-     * Main execution method for delayed or periodic tasks.  If pool
+     * Main execution method for delayed or periodic tasks. If pool
      * is shut down, rejects the task. Otherwise adds task to queue
-     * and starts a thread, if necessary, to run it.  (We cannot
+     * and starts a thread, if necessary, to run it. (We cannot
      * prestart the thread to run the task because the task (probably)
-     * shouldn't be run yet.)  If the pool is shut down while the task
+     * shouldn't be run yet.) If the pool is shut down while the task
      * is being added, cancel and remove it if required by state and
      * run-after-shutdown parameters.
      *
      * @param task the task
      */
     private void delayedExecute(RunnableScheduledFuture<?> task) {
+        // 如果线程池关闭了，执行拒绝策略
         if (isShutdown())
             reject(task);
         else {
+            // 先把任务扔到队列中去
+            // 我们知道，线程池执行任务时需要从任务队列中拿任务，而普通的任务队列，如果里面有任务就直接拿出来了，但是延时队列不一样，它里面的任务，
+            // 如果没有到时间也是拿不出来的，这也是前面分析中一上来就把任务扔进队列且创建Worker没有传入firstTask的原因。
             super.getQueue().add(task);
+            // 再次检查线程池状态
             if (isShutdown() &&
-                !canRunInCurrentRunState(task.isPeriodic()) &&
-                remove(task))
+                    !canRunInCurrentRunState(task.isPeriodic()) &&
+                    remove(task))
                 task.cancel(false);
             else
+                // 保证有足够的线程执行任务
                 ensurePrestart();
         }
     }
@@ -342,39 +352,43 @@ public class ScheduledThreadPoolExecutor
      * @param task the task
      */
     void reExecutePeriodic(RunnableScheduledFuture<?> task) {
+        // 线程池状态检查
         if (canRunInCurrentRunState(true)) {
+            // 再次把任务扔到任务队列中
             super.getQueue().add(task);
+            // 再次检查线程池状态
             if (!canRunInCurrentRunState(true) && remove(task))
                 task.cancel(false);
             else
+                // 保证工作线程足够
                 ensurePrestart();
         }
     }
 
     /**
      * Cancels and clears the queue of all tasks that should not be run
-     * due to shutdown policy.  Invoked within super.shutdown.
+     * due to shutdown policy. Invoked within super.shutdown.
      */
-    @Override void onShutdown() {
+    @Override
+    void onShutdown() {
         BlockingQueue<Runnable> q = super.getQueue();
         boolean keepDelayed =
-            getExecuteExistingDelayedTasksAfterShutdownPolicy();
+                getExecuteExistingDelayedTasksAfterShutdownPolicy();
         boolean keepPeriodic =
-            getContinueExistingPeriodicTasksAfterShutdownPolicy();
+                getContinueExistingPeriodicTasksAfterShutdownPolicy();
         if (!keepDelayed && !keepPeriodic) {
             for (Object e : q.toArray())
                 if (e instanceof RunnableScheduledFuture<?>)
                     ((RunnableScheduledFuture<?>) e).cancel(false);
             q.clear();
-        }
-        else {
+        } else {
             // Traverse snapshot to avoid iterator exceptions
             for (Object e : q.toArray()) {
                 if (e instanceof RunnableScheduledFuture) {
                     RunnableScheduledFuture<?> t =
-                        (RunnableScheduledFuture<?>)e;
+                            (RunnableScheduledFuture<?>) e;
                     if ((t.isPeriodic() ? !keepPeriodic : !keepDelayed) ||
-                        t.isCancelled()) { // also remove if already cancelled
+                            t.isCancelled()) { // also remove if already cancelled
                         if (q.remove(t))
                             t.cancel(false);
                     }
@@ -397,7 +411,7 @@ public class ScheduledThreadPoolExecutor
      * @since 1.6
      */
     protected <V> RunnableScheduledFuture<V> decorateTask(
-        Runnable runnable, RunnableScheduledFuture<V> task) {
+            Runnable runnable, RunnableScheduledFuture<V> task) {
         return task;
     }
 
@@ -414,7 +428,7 @@ public class ScheduledThreadPoolExecutor
      * @since 1.6
      */
     protected <V> RunnableScheduledFuture<V> decorateTask(
-        Callable<V> callable, RunnableScheduledFuture<V> task) {
+            Callable<V> callable, RunnableScheduledFuture<V> task) {
         return task;
     }
 
@@ -423,12 +437,12 @@ public class ScheduledThreadPoolExecutor
      * given core pool size.
      *
      * @param corePoolSize the number of threads to keep in the pool, even
-     *        if they are idle, unless {@code allowCoreThreadTimeOut} is set
+     *            if they are idle, unless {@code allowCoreThreadTimeOut} is set
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
      */
     public ScheduledThreadPoolExecutor(int corePoolSize) {
         super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
-              new DelayedWorkQueue());
+                new DelayedWorkQueue());
     }
 
     /**
@@ -436,16 +450,16 @@ public class ScheduledThreadPoolExecutor
      * given initial parameters.
      *
      * @param corePoolSize the number of threads to keep in the pool, even
-     *        if they are idle, unless {@code allowCoreThreadTimeOut} is set
+     *            if they are idle, unless {@code allowCoreThreadTimeOut} is set
      * @param threadFactory the factory to use when the executor
-     *        creates a new thread
+     *            creates a new thread
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
      * @throws NullPointerException if {@code threadFactory} is null
      */
     public ScheduledThreadPoolExecutor(int corePoolSize,
-                                       ThreadFactory threadFactory) {
+            ThreadFactory threadFactory) {
         super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
-              new DelayedWorkQueue(), threadFactory);
+                new DelayedWorkQueue(), threadFactory);
     }
 
     /**
@@ -453,16 +467,16 @@ public class ScheduledThreadPoolExecutor
      * initial parameters.
      *
      * @param corePoolSize the number of threads to keep in the pool, even
-     *        if they are idle, unless {@code allowCoreThreadTimeOut} is set
+     *            if they are idle, unless {@code allowCoreThreadTimeOut} is set
      * @param handler the handler to use when execution is blocked
-     *        because the thread bounds and queue capacities are reached
+     *            because the thread bounds and queue capacities are reached
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
      * @throws NullPointerException if {@code handler} is null
      */
     public ScheduledThreadPoolExecutor(int corePoolSize,
-                                       RejectedExecutionHandler handler) {
+            RejectedExecutionHandler handler) {
         super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
-              new DelayedWorkQueue(), handler);
+                new DelayedWorkQueue(), handler);
     }
 
     /**
@@ -470,20 +484,20 @@ public class ScheduledThreadPoolExecutor
      * initial parameters.
      *
      * @param corePoolSize the number of threads to keep in the pool, even
-     *        if they are idle, unless {@code allowCoreThreadTimeOut} is set
+     *            if they are idle, unless {@code allowCoreThreadTimeOut} is set
      * @param threadFactory the factory to use when the executor
-     *        creates a new thread
+     *            creates a new thread
      * @param handler the handler to use when execution is blocked
-     *        because the thread bounds and queue capacities are reached
+     *            because the thread bounds and queue capacities are reached
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
      * @throws NullPointerException if {@code threadFactory} or
-     *         {@code handler} is null
+     *             {@code handler} is null
      */
     public ScheduledThreadPoolExecutor(int corePoolSize,
-                                       ThreadFactory threadFactory,
-                                       RejectedExecutionHandler handler) {
+            ThreadFactory threadFactory,
+            RejectedExecutionHandler handler) {
         super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
-              new DelayedWorkQueue(), threadFactory, handler);
+                new DelayedWorkQueue(), threadFactory, handler);
     }
 
     /**
@@ -498,7 +512,7 @@ public class ScheduledThreadPoolExecutor
      */
     long triggerTime(long delay) {
         return now() +
-            ((delay < (Long.MAX_VALUE >> 1)) ? delay : overflowFree(delay));
+                ((delay < (Long.MAX_VALUE >> 1)) ? delay : overflowFree(delay));
     }
 
     /**
@@ -520,78 +534,82 @@ public class ScheduledThreadPoolExecutor
 
     /**
      * @throws RejectedExecutionException {@inheritDoc}
-     * @throws NullPointerException       {@inheritDoc}
+     * @throws NullPointerException {@inheritDoc}
      */
     public ScheduledFuture<?> schedule(Runnable command,
-                                       long delay,
-                                       TimeUnit unit) {
+            long delay,
+            TimeUnit unit) {
         if (command == null || unit == null)
             throw new NullPointerException();
         RunnableScheduledFuture<?> t = decorateTask(command,
-            new ScheduledFutureTask<Void>(command, null,
-                                          triggerTime(delay, unit)));
+                new ScheduledFutureTask<Void>(command, null,
+                        triggerTime(delay, unit)));
         delayedExecute(t);
         return t;
     }
 
     /**
      * @throws RejectedExecutionException {@inheritDoc}
-     * @throws NullPointerException       {@inheritDoc}
+     * @throws NullPointerException {@inheritDoc}
      */
     public <V> ScheduledFuture<V> schedule(Callable<V> callable,
-                                           long delay,
-                                           TimeUnit unit) {
+            long delay,
+            TimeUnit unit) {
         if (callable == null || unit == null)
             throw new NullPointerException();
         RunnableScheduledFuture<V> t = decorateTask(callable,
-            new ScheduledFutureTask<V>(callable,
-                                       triggerTime(delay, unit)));
+                new ScheduledFutureTask<V>(callable,
+                        triggerTime(delay, unit)));
         delayedExecute(t);
         return t;
     }
 
     /**
      * @throws RejectedExecutionException {@inheritDoc}
-     * @throws NullPointerException       {@inheritDoc}
-     * @throws IllegalArgumentException   {@inheritDoc}
+     * @throws NullPointerException {@inheritDoc}
+     * @throws IllegalArgumentException {@inheritDoc}
      */
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
-                                                  long initialDelay,
-                                                  long period,
-                                                  TimeUnit unit) {
+            long initialDelay,
+            long period,
+            TimeUnit unit) {
+        // 参数判断
         if (command == null || unit == null)
             throw new NullPointerException();
         if (period <= 0)
             throw new IllegalArgumentException();
+        // 将普通任务装饰成ScheduledFutureTask
         ScheduledFutureTask<Void> sft =
-            new ScheduledFutureTask<Void>(command,
-                                          null,
-                                          triggerTime(initialDelay, unit),
-                                          unit.toNanos(period));
+                new ScheduledFutureTask<Void>(command,
+                        null,
+                        triggerTime(initialDelay, unit),
+                        unit.toNanos(period));
+        // 钩子方法，给子类用来替换装饰task，这里认为t==sft
         RunnableScheduledFuture<Void> t = decorateTask(command, sft);
         sft.outerTask = t;
+        // 延迟执行
         delayedExecute(t);
         return t;
     }
 
     /**
      * @throws RejectedExecutionException {@inheritDoc}
-     * @throws NullPointerException       {@inheritDoc}
-     * @throws IllegalArgumentException   {@inheritDoc}
+     * @throws NullPointerException {@inheritDoc}
+     * @throws IllegalArgumentException {@inheritDoc}
      */
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
-                                                     long initialDelay,
-                                                     long delay,
-                                                     TimeUnit unit) {
+            long initialDelay,
+            long delay,
+            TimeUnit unit) {
         if (command == null || unit == null)
             throw new NullPointerException();
         if (delay <= 0)
             throw new IllegalArgumentException();
         ScheduledFutureTask<Void> sft =
-            new ScheduledFutureTask<Void>(command,
-                                          null,
-                                          triggerTime(initialDelay, unit),
-                                          unit.toNanos(-delay));
+                new ScheduledFutureTask<Void>(command,
+                        null,
+                        triggerTime(initialDelay, unit),
+                        unit.toNanos(-delay));
         RunnableScheduledFuture<Void> t = decorateTask(command, sft);
         sft.outerTask = t;
         delayedExecute(t);
@@ -606,16 +624,17 @@ public class ScheduledThreadPoolExecutor
      * {@code shutdownNow} will access the zero-delayed
      * {@link ScheduledFuture}, not the {@code command} itself.
      *
-     * <p>A consequence of the use of {@code ScheduledFuture} objects is
+     * <p>
+     * A consequence of the use of {@code ScheduledFuture} objects is
      * that {@link ThreadPoolExecutor#afterExecute afterExecute} is always
      * called with a null second {@code Throwable} argument, even if the
-     * {@code command} terminated abruptly.  Instead, the {@code Throwable}
+     * {@code command} terminated abruptly. Instead, the {@code Throwable}
      * thrown by such a task can be obtained via {@link Future#get}.
      *
      * @throws RejectedExecutionException at discretion of
-     *         {@code RejectedExecutionHandler}, if the task
-     *         cannot be accepted for execution because the
-     *         executor has been shut down
+     *             {@code RejectedExecutionHandler}, if the task
+     *             cannot be accepted for execution because the
+     *             executor has been shut down
      * @throws NullPointerException {@inheritDoc}
      */
     public void execute(Runnable command) {
@@ -626,7 +645,7 @@ public class ScheduledThreadPoolExecutor
 
     /**
      * @throws RejectedExecutionException {@inheritDoc}
-     * @throws NullPointerException       {@inheritDoc}
+     * @throws NullPointerException {@inheritDoc}
      */
     public Future<?> submit(Runnable task) {
         return schedule(task, 0, NANOSECONDS);
@@ -634,7 +653,7 @@ public class ScheduledThreadPoolExecutor
 
     /**
      * @throws RejectedExecutionException {@inheritDoc}
-     * @throws NullPointerException       {@inheritDoc}
+     * @throws NullPointerException {@inheritDoc}
      */
     public <T> Future<T> submit(Runnable task, T result) {
         return schedule(Executors.callable(task, result), 0, NANOSECONDS);
@@ -642,7 +661,7 @@ public class ScheduledThreadPoolExecutor
 
     /**
      * @throws RejectedExecutionException {@inheritDoc}
-     * @throws NullPointerException       {@inheritDoc}
+     * @throws NullPointerException {@inheritDoc}
      */
     public <T> Future<T> submit(Callable<T> task) {
         return schedule(task, 0, NANOSECONDS);
@@ -714,7 +733,7 @@ public class ScheduledThreadPoolExecutor
 
     /**
      * Sets the policy on whether cancelled tasks should be immediately
-     * removed from the work queue at time of cancellation.  This value is
+     * removed from the work queue at time of cancellation. This value is
      * by default {@code false}.
      *
      * @param value if {@code true}, remove on cancellation, else don't
@@ -727,7 +746,7 @@ public class ScheduledThreadPoolExecutor
 
     /**
      * Gets the policy on whether cancelled tasks should be immediately
-     * removed from the work queue at time of cancellation.  This value is
+     * removed from the work queue at time of cancellation. This value is
      * by default {@code false}.
      *
      * @return {@code true} if cancelled tasks are immediately removed
@@ -744,13 +763,15 @@ public class ScheduledThreadPoolExecutor
      * tasks are executed, but no new tasks will be accepted.
      * Invocation has no additional effect if already shut down.
      *
-     * <p>This method does not wait for previously submitted tasks to
-     * complete execution.  Use {@link #awaitTermination awaitTermination}
+     * <p>
+     * This method does not wait for previously submitted tasks to
+     * complete execution. Use {@link #awaitTermination awaitTermination}
      * to do that.
      *
-     * <p>If the {@code ExecuteExistingDelayedTasksAfterShutdownPolicy}
+     * <p>
+     * If the {@code ExecuteExistingDelayedTasksAfterShutdownPolicy}
      * has been set {@code false}, existing delayed tasks whose delays
-     * have not yet elapsed are cancelled.  And unless the {@code
+     * have not yet elapsed are cancelled. And unless the {@code
      * ContinueExistingPeriodicTasksAfterShutdownPolicy} has been set
      * {@code true}, future executions of existing periodic tasks will
      * be cancelled.
@@ -766,12 +787,14 @@ public class ScheduledThreadPoolExecutor
      * processing of waiting tasks, and returns a list of the tasks
      * that were awaiting execution.
      *
-     * <p>This method does not wait for actively executing tasks to
-     * terminate.  Use {@link #awaitTermination awaitTermination} to
+     * <p>
+     * This method does not wait for actively executing tasks to
+     * terminate. Use {@link #awaitTermination awaitTermination} to
      * do that.
      *
-     * <p>There are no guarantees beyond best-effort attempts to stop
-     * processing actively executing tasks.  This implementation
+     * <p>
+     * There are no guarantees beyond best-effort attempts to stop
+     * processing actively executing tasks. This implementation
      * cancels tasks via {@link Thread#interrupt}, so any task that
      * fails to respond to interrupts may never terminate.
      *
@@ -787,11 +810,11 @@ public class ScheduledThreadPoolExecutor
     }
 
     /**
-     * Returns the task queue used by this executor.  Each element of
+     * Returns the task queue used by this executor. Each element of
      * this queue is a {@link ScheduledFuture}, including those
      * tasks submitted using {@code execute} which are for scheduling
      * purposes used as the basis of a zero-delay
-     * {@code ScheduledFuture}.  Iteration over this queue is
+     * {@code ScheduledFuture}. Iteration over this queue is
      * <em>not</em> guaranteed to traverse tasks in the order in
      * which they will execute.
      *
@@ -807,7 +830,8 @@ public class ScheduledThreadPoolExecutor
      * it can only hold RunnableScheduledFutures.
      */
     static class DelayedWorkQueue extends AbstractQueue<Runnable>
-        implements BlockingQueue<Runnable> {
+            implements
+                BlockingQueue<Runnable> {
 
         /*
          * A DelayedWorkQueue is based on a heap-based data structure
@@ -823,7 +847,6 @@ public class ScheduledThreadPoolExecutor
          * which case we fall back to linear search. (We expect that
          * most tasks will not be decorated, and that the faster cases
          * will be much more common.)
-         *
          * All heap operations must record index changes -- mainly
          * within siftUp and siftDown. Upon removal, a task's
          * heapIndex is set to -1. Note that ScheduledFutureTasks can
@@ -834,24 +857,24 @@ public class ScheduledThreadPoolExecutor
 
         private static final int INITIAL_CAPACITY = 16;
         private RunnableScheduledFuture<?>[] queue =
-            new RunnableScheduledFuture<?>[INITIAL_CAPACITY];
+                new RunnableScheduledFuture<?>[INITIAL_CAPACITY];
         private final ReentrantLock lock = new ReentrantLock();
         private int size = 0;
 
         /**
          * Thread designated to wait for the task at the head of the
-         * queue.  This variant of the Leader-Follower pattern
+         * queue. This variant of the Leader-Follower pattern
          * (http://www.cs.wustl.edu/~schmidt/POSA/POSA2/) serves to
-         * minimize unnecessary timed waiting.  When a thread becomes
+         * minimize unnecessary timed waiting. When a thread becomes
          * the leader, it waits only for the next delay to elapse, but
-         * other threads await indefinitely.  The leader thread must
+         * other threads await indefinitely. The leader thread must
          * signal some other thread before returning from take() or
          * poll(...), unless some other thread becomes leader in the
-         * interim.  Whenever the head of the queue is replaced with a
+         * interim. Whenever the head of the queue is replaced with a
          * task with an earlier expiration time, the leader field is
          * invalidated by being reset to null, and some waiting
          * thread, but not necessarily the current leader, is
-         * signalled.  So waiting threads must be prepared to acquire
+         * signalled. So waiting threads must be prepared to acquire
          * and lose leadership while waiting.
          */
         private Thread leader = null;
@@ -867,7 +890,7 @@ public class ScheduledThreadPoolExecutor
          */
         private void setIndex(RunnableScheduledFuture<?> f, int idx) {
             if (f instanceof ScheduledFutureTask)
-                ((ScheduledFutureTask)f).heapIndex = idx;
+                ((ScheduledFutureTask) f).heapIndex = idx;
         }
 
         /**
@@ -911,7 +934,7 @@ public class ScheduledThreadPoolExecutor
         }
 
         /**
-         * Resizes the heap array.  Call only when holding lock.
+         * Resizes the heap array. Call only when holding lock.
          */
         private void grow() {
             int oldCapacity = queue.length;
@@ -1005,7 +1028,7 @@ public class ScheduledThreadPoolExecutor
         public boolean offer(Runnable x) {
             if (x == null)
                 throw new NullPointerException();
-            RunnableScheduledFuture<?> e = (RunnableScheduledFuture<?>)x;
+            RunnableScheduledFuture<?> e = (RunnableScheduledFuture<?>) x;
             final ReentrantLock lock = this.lock;
             lock.lock();
             try {
@@ -1043,8 +1066,9 @@ public class ScheduledThreadPoolExecutor
 
         /**
          * Performs common bookkeeping for poll and take: Replaces
-         * first element with last and sifts it down.  Call only when
+         * first element with last and sifts it down. Call only when
          * holding lock.
+         * 
          * @param f the task to remove and return
          */
         private RunnableScheduledFuture<?> finishPoll(RunnableScheduledFuture<?> f) {
@@ -1106,7 +1130,7 @@ public class ScheduledThreadPoolExecutor
         }
 
         public RunnableScheduledFuture<?> poll(long timeout, TimeUnit unit)
-            throws InterruptedException {
+                throws InterruptedException {
             long nanos = unit.toNanos(timeout);
             final ReentrantLock lock = this.lock;
             lock.lockInterruptibly();
@@ -1166,13 +1190,12 @@ public class ScheduledThreadPoolExecutor
 
         /**
          * Returns first element only if it is expired.
-         * Used only by drainTo.  Call only when holding lock.
+         * Used only by drainTo. Call only when holding lock.
          */
         private RunnableScheduledFuture<?> peekExpired() {
             // assert lock.isHeldByCurrentThread();
             RunnableScheduledFuture<?> first = queue[0];
-            return (first == null || first.getDelay(NANOSECONDS) > 0) ?
-                null : first;
+            return (first == null || first.getDelay(NANOSECONDS) > 0) ? null : first;
         }
 
         public int drainTo(Collection<? super Runnable> c) {
@@ -1186,7 +1209,7 @@ public class ScheduledThreadPoolExecutor
                 RunnableScheduledFuture<?> first;
                 int n = 0;
                 while ((first = peekExpired()) != null) {
-                    c.add(first);   // In this order, in case add() throws.
+                    c.add(first); // In this order, in case add() throws.
                     finishPoll(first);
                     ++n;
                 }
@@ -1209,7 +1232,7 @@ public class ScheduledThreadPoolExecutor
                 RunnableScheduledFuture<?> first;
                 int n = 0;
                 while (n < maxElements && (first = peekExpired()) != null) {
-                    c.add(first);   // In this order, in case add() throws.
+                    c.add(first); // In this order, in case add() throws.
                     finishPoll(first);
                     ++n;
                 }
@@ -1254,8 +1277,8 @@ public class ScheduledThreadPoolExecutor
          */
         private class Itr implements Iterator<Runnable> {
             final RunnableScheduledFuture<?>[] array;
-            int cursor = 0;     // index of next element to return
-            int lastRet = -1;   // index of last element, or -1 if no such
+            int cursor = 0; // index of next element to return
+            int lastRet = -1; // index of last element, or -1 if no such
 
             Itr(RunnableScheduledFuture<?>[] array) {
                 this.array = array;

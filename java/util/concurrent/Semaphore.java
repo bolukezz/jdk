@@ -156,6 +156,7 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 public class Semaphore implements java.io.Serializable {
     private static final long serialVersionUID = -3222578661600680210L;
     /** All mechanics via AbstractQueuedSynchronizer subclass */
+    //可以看到在Semaphore中包含了一个实现了AQS的同步器Sync,以及他有两个子类分别代表公平的和非公平的。
     private final Sync sync;
 
     /**
@@ -166,49 +167,69 @@ public class Semaphore implements java.io.Serializable {
     abstract static class Sync extends AbstractQueuedSynchronizer {
         private static final long serialVersionUID = 1192457210091910933L;
 
+        //构造方法，传入许可次数，放入state中
         Sync(int permits) {
             setState(permits);
         }
 
+        //获取许可次数
         final int getPermits() {
             return getState();
         }
 
+        //非公平模式尝试获取许可
         final int nonfairTryAcquireShared(int acquires) {
             for (;;) {
+                //看看还有几个许可
                 int available = getState();
+                //减去这次需要获取的许可还剩下几个许可
                 int remaining = available - acquires;
+                //如果剩余许可小于0了直接返回
+                //如果剩余许可不小于0，则尝试原子更新state的值，成功了返回剩余许可
                 if (remaining < 0 ||
                     compareAndSetState(available, remaining))
                     return remaining;
             }
         }
-
+        //释放许可
         protected final boolean tryReleaseShared(int releases) {
             for (;;) {
+                //看看还有几个许可
                 int current = getState();
+                //加上这次释放的许可
                 int next = current + releases;
+                //检测溢出
                 if (next < current) // overflow
                     throw new Error("Maximum permit count exceeded");
+                //如果原子更新state的值成功，就说明释放许可成功了，则返回true
                 if (compareAndSetState(current, next))
                     return true;
             }
         }
 
+        //减少许可
         final void reducePermits(int reductions) {
             for (;;) {
+                //看看还有几个许可
                 int current = getState();
+                //减去将要减少的许可
                 int next = current - reductions;
+                //检查举出
                 if (next > current) // underflow
                     throw new Error("Permit count underflow");
+               //原子更新state，成功了返回true
                 if (compareAndSetState(current, next))
                     return;
             }
         }
 
+        //销毁许可
         final int drainPermits() {
             for (;;) {
+                //看看还有几个许可
                 int current = getState();
+                //如果为0，直接返回
+                //如果部位0，把state原子更新为0
                 if (current == 0 || compareAndSetState(current, 0))
                     return current;
             }

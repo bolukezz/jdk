@@ -55,9 +55,12 @@ public class AtomicInteger extends Number implements java.io.Serializable {
     private static final long serialVersionUID = 6214790243416807050L;
 
     // setup to use Unsafe.compareAndSwapInt for updates
+    //获取Unsafe的实例
     private static final Unsafe unsafe = Unsafe.getUnsafe();
+    //标示value字段的偏移量
     private static final long valueOffset;
 
+    //静态代码块，通过unsafe获取value的偏移量
     static {
         try {
             valueOffset = unsafe.objectFieldOffset
@@ -65,6 +68,7 @@ public class AtomicInteger extends Number implements java.io.Serializable {
         } catch (Exception ex) { throw new Error(ex); }
     }
 
+    //存储int类型值的地方，使用volatile修饰
     private volatile int value;
 
     /**
@@ -130,6 +134,11 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * the actual value was not equal to the expected value.
      */
     public final boolean compareAndSet(int expect, int update) {
+        //直接调用unsafe的方法，这个方法有4个参数
+        //（1）操作的对象；
+        //（2）对象中字段的偏移量；
+        //（3）原来的值，即期望的值；
+        //（4）要修改的值；
         return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
     }
 
